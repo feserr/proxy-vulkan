@@ -1,0 +1,41 @@
+version: 0.1.0[{build}]
+
+clone_depth: 1
+
+branches:
+  only:
+    - master
+    - dev
+
+cache:
+  - c:\usr
+
+image: Visual Studio 2019
+
+environment:
+  VULKAN_SDK: C:\VulkanSDK\1.2.135.0
+  matrix:
+    - CMAKE_VS_VERSION: "16 2019"
+
+install:
+  - curl -L --silent --show-error --output VulkanSDK.exe https://vulkan.lunarg.com/sdk/download/1.2.135.0/windows/VulkanSDK-1.2.135.0-Installer.exe?Human=true
+  - .\VulkanSDK.exe /S
+  - appveyor DownloadFile https://github.com/KhronosGroup/glslang/releases/download/master-tot/glslang-master-windows-x64-Release.zip -FileName glslangvalidator.zip
+  - unzip glslangvalidator.zip
+  - set PATH=%APPVEYOR_BUILD_FOLDER%\bin;%PATH%
+
+platform:
+  - x86
+  - x64
+configuration:
+  - Debug
+  - Release
+
+before_build:
+  - git submodule -q update --init --recursive
+
+  - cmake -DSTANDALONE=ON -DCMAKE_BUILD_TYPE=%configuration% -G "Visual Studio %CMAKE_VS_VERSION%"
+
+build_script:
+  project: ALL_BUILD.vcxproj
+  verbosity: minimal

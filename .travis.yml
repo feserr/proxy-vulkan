@@ -1,0 +1,100 @@
+sudo: true
+language: cpp
+
+addons:
+  apt:
+    packages:
+      - valgrind
+      - cmake
+      - ninja-build
+      - doxygen
+      - libgl1-mesa-glx
+      - libgl1-mesa-dev
+      - libvulkan1
+      - libvulkan-dev
+  homebrew:
+    packages:
+      - git-lfs
+      - doxygen
+      - ninja
+
+env:
+  global:
+    - CTEST_EXT_COLOR_OUTPUT=TRUE
+    - CTEST_BUILD_FLAGS=-j4
+
+matrix:
+  include:
+    - os: linux
+      name: Ubuntu Bionic gcc
+      dist: bionic
+      env:
+        - MATRIX_EVAL="CC=gcc && CXX=g++"
+        - VULKAN_SDK_VER="1.2.135"
+
+    - os: linux
+      name: Ubuntu Bionic clang
+      dist: bionic
+      env:
+        - MATRIX_EVAL="CC=clang && CXX=clang++"
+        - VULKAN_SDK_VER="1.2.135"
+
+    - os: osx
+      name: OSX xcode11.2 gcc
+      osx_image: xcode11.2
+      env:
+        - MATRIX_EVAL="CC=gcc && CXX=g++"
+        - VULKAN_SDK_VER="1.2.135.0"
+        - VULKAN_INSTALL_DIR="$HOME/build/vulkansdk-macos-$VULKAN_SDK_VER"
+        - VULKAN_SDK="$VULKAN_INSTALL_DIR/macOS"
+
+    - os: osx
+      name: OSX xcode11.2 clang
+      osx_image: xcode11.2
+      env:
+        - MATRIX_EVAL="CC=clang && CXX=clang++"
+        - VULKAN_SDK_VER="1.2.135.0"
+        - VULKAN_INSTALL_DIR="$HOME/build/vulkansdk-macos-$VULKAN_SDK_VER"
+        - VULKAN_SDK="$VULKAN_INSTALL_DIR/macOS"
+
+before_install:
+  - eval "${MATRIX_EVAL}"
+
+install:
+  - |
+    case "${TRAVIS_OS_NAME:-linux}" in
+    linux)
+      # No need to install git-lfs. It is part of Travis's Xenial environment.
+      wget -qO - http://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add - &&
+      sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-$VULKAN_SDK_VER-xenial.list http://packages.lunarg.com/vulkan/$VULKAN_SDK_VER/lunarg-vulkan-$VULKAN_SDK_VER-xenial.list &&
+      sudo apt update &&
+      sudo apt install lunarg-vulkan-sdk
+      ;;
+    osx)
+      # Current directory is .../build/{KhronosGroup,msc-}/KTX-Software. cd to 'build'.
+      pushd ../.. &&
+      wget -O vulkansdk-macos-$VULKAN_SDK_VER.tar.gz https://sdk.lunarg.com/sdk/download/$VULKAN_SDK_VER/mac/vulkansdk-macos-$VULKAN_SDK_VER.tar.gz?Human=true &&
+      tar -xzf vulkansdk-macos-$VULKAN_SDK_VER.tar.gz &&
+      wget -O Packages.dmg http://s.sudre.free.fr/Software/files/Packages.dmg &&
+      hdiutil attach Packages.dmg &&
+      sudo installer -pkg /Volumes/Packages*/packages/packages.pkg -target / &&
+      hdiutil detach /Volumes/Packages* &&
+      popd
+      ;;
+    esac
+
+before_script:
+  - chmod +x build_osx.sh
+  - chmod +x build_linux.sh
+
+script:
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then ./build_osx.sh; else ./build_linux.sh; fi
+
+branches:
+  only:
+    - master
+    - dev
+
+notifications:
+  email:
+    on_success: never
