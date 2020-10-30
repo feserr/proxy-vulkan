@@ -42,7 +42,7 @@ Version: 0.2.0 - Released: 30th October 2020
 
 <a name="whats-new"></a>
 
-## What's new in 0.1.1?
+## What's new in 0.2.0?
 
 - Convert to C++.
 - Use Cap'n Proto to send the data over TCP.
