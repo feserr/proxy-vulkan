@@ -5,6 +5,8 @@
 
 [![License](https://img.shields.io/badge/license-BSD--2%20clause-blue.svg)](https://github.com/feserr/proxy-vulkan#license)
 
+[![Trello URL](https://img.shields.io/badge/trello-ProxyVulkan-green.svg?longCache=true&style=for-the-badge)](https://trello.com/b/sklZeJXI/proxy-vulkan)
+
 # Index
 
 - [About](#about)
@@ -23,9 +25,20 @@
 
 # Proxy Vulkan 0.2.0
 
-Proxy Vulkan is an open source proxy library for Vulkan.
+Proxy Vulkan is an open source to send local Vulkan calls to the cloud.
 
-Version: 0.2.0 - Released: 25th October 2020
+Use the "proxy library" technique to override the Vulkan library so an
+application will use this one instead of the real. This give us the ability
+to intercept all the call to the original API and send them to the cloud to
+run in there.
+
+In contrast to tipical game streaming system that you send the user inputs and
+the cloud returns you the result image, this system run the application
+locally but the Vulkan calls are executed at a cloud.
+
+You will be able to execute any Vulkan application with the power of the cloud.
+
+Version: 0.2.0 - Released: 30th October 2020
 
 <a name="whats-new"></a>
 
@@ -86,7 +99,7 @@ LD_LIBRARY_PATH=. ./create_instance
 
 ## Future features
 
-- IP address are configured using a file.
+- Look at the [Trello board](https://trello.com/b/sklZeJXI/proxy-vulkan).
 
 <a name="contributing"></a>
 
@@ -94,9 +107,7 @@ LD_LIBRARY_PATH=. ./create_instance
 
 - If you find a bug then please report it on [GitHub Issues][issues].
 
-- If you have a feature request, or have written a game or demo that shows Proxy Vulkan in use, then please get in touch. We'd love to hear from you!
-
-- If you issue a Pull Request for Proxy Vulkan, please only do so against the `dev` branch and **not** against the `master` branch.
+- If you have a feature request, or have written a tool or demo that shows Proxy Vulkan in use, then please get in touch. We'd love to hear from you!
 
 <a name="bugs"></a>
 
