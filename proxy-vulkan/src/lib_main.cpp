@@ -6,11 +6,16 @@
 #include "proxy-vulkan/lib_main.h"
 
 #include <angelia/client.h>
+#include <capnp/message.h>
+#include <capnp/serialize-packed.h>
 #include <hephaestus/log.h>
+#include <proxy-protos/protos/function.capnp.h>
 #include <stdlib.h>
 
 #include "proxy-vulkan/globals.h"
-#include "proxy-vulkan/proxy_functions.h"
+#include "proxy-vulkan/proto_utils.h"
+
+int socket_desc;
 
 void ConstructorLib() {
   Log(info, "Constructor\n");
@@ -23,15 +28,12 @@ void ConstructorLib() {
 void DestructorLib() {
   Log(info, "Destructor\n");
 
-  uint32_t size = sizeof(struct ProxyFunction);
-  void* buffer = malloc(size);
-  struct ProxyFunction function = {proxy_end, 0};
-  memcpy(buffer, &function, size);
-
-  if (AngeliaSend(socket_desc, buffer, size) <= 0) {
-    Log(error, "Failed to send data.\n");
-  }
-  free(buffer);
+  OutputStream out(socket_desc);
+  ::capnp::MallocMessageBuilder message_builder;
+  ProxyFunction::Builder function_end =
+      message_builder.initRoot<ProxyFunction>();
+  function_end.setFunction(VkType::PROXY_END);
+  capnp::writeMessage(out, message_builder);
 
   if (AngeliaClientClose(&socket_desc)) {
     Log(error, "Failed to close Angelia client.");

@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
-cmake_policy(VERSION 3.7)
+cmake_minimum_required(VERSION 3.10.2 FATAL_ERROR)
+cmake_policy(VERSION 3.10.2)
 # cmake_policy(SET CMP0046 OLD)
 cmake_policy(SET CMP0057 NEW)
 
-set (REPO_VERSION 0.0.1)
+set (REPO_VERSION 0.2.0)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake-modules)
 
@@ -22,10 +22,7 @@ elseif(APPLE)
 endif()
 
 # Use FindVulkan module added with CMAKE 3.7
-if(NOT CMAKE_VERSION VERSION_LESS 3.7.0)
-  message(STATUS "Using module to find Vulkan")
-  find_package(Vulkan REQUIRED FATAL_ERROR)
-endif()
+find_package(Vulkan REQUIRED FATAL_ERROR)
 
 include_directories(${Vulkan_INCLUDE_DIRS})
 
@@ -52,8 +49,8 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 # Set the debug or relese mode.
 if (CMAKE_BUILD_TYPE MATCHES Debug)
@@ -221,6 +218,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
 
 add_subdirectory(external/angelia)
+add_subdirectory(proxy-protos)
 add_subdirectory(proxy-vulkan)
 add_subdirectory(proxy-vulkan-server)
 add_subdirectory(samples)

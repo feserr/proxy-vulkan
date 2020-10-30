@@ -6,6 +6,6 @@
 #ifndef PROXY_VULKAN_GLOBALS_H_
 #define PROXY_VULKAN_GLOBALS_H_
 
-int socket_desc;
+extern int socket_desc;
 
 #endif  // PROXY_VULKAN_GLOBALS_H_

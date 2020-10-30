@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.10.2 FATAL_ERROR)
+
 set(NAME vulkan)
 
 set(MAJOR_VERSION 1)
@@ -7,16 +9,16 @@ set(VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION})
 
 project(${NAME} VERSION ${REPO_VERSION} DESCRIPTION "Proxy Vulkan library")
 
+find_package(CapnProto CONFIG REQUIRED)
+
 set(SOURCE_FILES
-  src/lib_main.c
-  src/instance.c)
+  src/lib_main.cpp
+  src/instance.cpp)
 
 set(HEADER_PATHS include)
 set(HEADER_FILES
   include/proxy-vulkan/globals.h
-  include/proxy-vulkan/proxy_headers.h
-  include/proxy-vulkan/proxy_functions.h
-  include/proxy-vulkan/proxy_results.h
+  include/proxy-vulkan/proto_utils.h
   include/proxy-vulkan/lib_main.h
   include/proxy-vulkan/instance.h)
 
@@ -24,6 +26,8 @@ include_directories(
   ${HEADER_PATHS}
   ${hephaestus_SOURCE_DIR}/include
   ${angelia_SOURCE_DIR}/include
+  ${CAPNP_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_BINARY_DIR}
   ../external/vulkan)
 
 add_library(${NAME} SHARED ${SOURCE_FILES} ${HEADER_FILES})
@@ -38,8 +42,13 @@ include(GenerateExportHeader)
 generate_export_header(${NAME})
 
 target_include_directories(${NAME}
-  PUBLIC ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
+  PUBLIC
+    ${CMAKE_BINARY_DIR}
+    ${PROJECT_BINARY_DIR}
+    ${PROJECT_SOURCE_DIR})
 
 target_link_libraries(${NAME}
   hephaestus::hephaestus
-  angelia::angelia)
+  angelia::angelia
+  proxyvulkan::protos
+  CapnProto::capnp)

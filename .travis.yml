@@ -17,11 +17,13 @@ addons:
       - git-lfs
       - doxygen
       - ninja
+      - capnp
 
 env:
   global:
     - CTEST_EXT_COLOR_OUTPUT=TRUE
     - CTEST_BUILD_FLAGS=-j4
+    - CAPNPROTO_VERSION="0.8.0"
 
 matrix:
   include:
@@ -31,6 +33,8 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc && CXX=g++"
         - VULKAN_SDK_VER="1.2.135"
+        - PATH="$PATH:$HOME/capnproto/bin"
+        - LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/capnproto/lib"
 
     - os: linux
       name: Ubuntu Bionic clang
@@ -38,6 +42,8 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++"
         - VULKAN_SDK_VER="1.2.135"
+        - PATH="$PATH:$HOME/capnproto/bin"
+        - LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/capnproto/lib"
 
     - os: osx
       name: OSX xcode11.2 gcc
@@ -45,7 +51,7 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc && CXX=g++"
         - VULKAN_SDK_VER="1.2.135.0"
-        - VULKAN_INSTALL_DIR="$HOME/build/vulkansdk-macos-$VULKAN_SDK_VER"
+        - VULKAN_INSTALL_DIR="$HOME/build/vulkansdk-macos-${VULKAN_SDK_VER}"
         - VULKAN_SDK="$VULKAN_INSTALL_DIR/macOS"
 
     - os: osx
@@ -54,7 +60,7 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++"
         - VULKAN_SDK_VER="1.2.135.0"
-        - VULKAN_INSTALL_DIR="$HOME/build/vulkansdk-macos-$VULKAN_SDK_VER"
+        - VULKAN_INSTALL_DIR="$HOME/build/vulkansdk-macos-${VULKAN_SDK_VER}"
         - VULKAN_SDK="$VULKAN_INSTALL_DIR/macOS"
 
 before_install:
@@ -64,17 +70,24 @@ install:
   - |
     case "${TRAVIS_OS_NAME:-linux}" in
     linux)
-      # No need to install git-lfs. It is part of Travis's Xenial environment.
       wget -qO - http://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add - &&
-      sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-$VULKAN_SDK_VER-xenial.list http://packages.lunarg.com/vulkan/$VULKAN_SDK_VER/lunarg-vulkan-$VULKAN_SDK_VER-xenial.list &&
+      sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-${VULKAN_SDK_VER}-bionic.list http://packages.lunarg.com/vulkan/${VULKAN_SDK_VER}/lunarg-vulkan-${VULKAN_SDK_VER}-bionic.list &&
       sudo apt update &&
-      sudo apt install lunarg-vulkan-sdk
+      sudo apt install vulkan-sdk &&
+      curl -O https://capnproto.org/capnproto-c++-${CAPNPROTO_VERSION}.tar.gz &&
+      tar zxf capnproto-c++-${CAPNPROTO_VERSION}.tar.gz &&
+      cd capnproto-c++-${CAPNPROTO_VERSION} &&
+      ./configure --prefix=$HOME/capnproto &&
+      make -j3 &&
+      make install &&
+      LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/capnproto/lib &&
+      cd ../
       ;;
     osx)
       # Current directory is .../build/{KhronosGroup,msc-}/KTX-Software. cd to 'build'.
       pushd ../.. &&
-      wget -O vulkansdk-macos-$VULKAN_SDK_VER.tar.gz https://sdk.lunarg.com/sdk/download/$VULKAN_SDK_VER/mac/vulkansdk-macos-$VULKAN_SDK_VER.tar.gz?Human=true &&
-      tar -xzf vulkansdk-macos-$VULKAN_SDK_VER.tar.gz &&
+      wget -O vulkansdk-macos-${VULKAN_SDK_VER}.tar.gz https://sdk.lunarg.com/sdk/download/${VULKAN_SDK_VER}/mac/vulkansdk-macos-${VULKAN_SDK_VER}.tar.gz?Human=true &&
+      tar -xzf vulkansdk-macos-${VULKAN_SDK_VER}.tar.gz &&
       wget -O Packages.dmg http://s.sudre.free.fr/Software/files/Packages.dmg &&
       hdiutil attach Packages.dmg &&
       sudo installer -pkg /Volumes/Packages*/packages/packages.pkg -target / &&

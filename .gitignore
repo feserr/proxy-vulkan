@@ -251,6 +251,9 @@ xcuserdata
 
 # Unix
 
+# Virtual env
+venv/
+
 # IDEs
 .vscode/
 

@@ -10,6 +10,7 @@
 - [About](#about)
 - [What's New?](#whats-new)
 - [How to Build](#how-to-build)
+- [How to Run](#how-to-run)
 - [Requirements](#requirements)
 - [Dependencies](#dependencies)
 - [Future features](#future)
@@ -20,17 +21,18 @@
 
 <a name="about"></a>
 
-# Proxy Vulkan 0.1.0
+# Proxy Vulkan 0.2.0
 
 Proxy Vulkan is an open source proxy library for Vulkan.
 
-Version: 0.1.0 - Released: 7rd June 2020
+Version: 0.2.0 - Released: 25th October 2020
 
 <a name="whats-new"></a>
 
-## What's new in 0.1.0?
+## What's new in 0.1.1?
 
-- Proxy vkEnumerateInstanceLayerProperties function.
+- Convert to C++.
+- Use Cap'n Proto to send the data over TCP.
 
 <a name="how-to-build"></a>
 
@@ -38,23 +40,53 @@ Version: 0.1.0 - Released: 7rd June 2020
 
 Coming soon...
 
+<a name="how-to-run"></a>
+
+## How to Run (in development)
+
+Currently, the IP are hard-coded.
+
+To run the server:
+```bash
+./proxy-vulkan-server
+```
+
+To run the proxy library, for example for the create instance example:
+- Windows:
+```bash
+./create_instance
+```
+
+- MacOS:
+```bash
+DYLD_LIBRARY_PATH=. ./create_instance
+```
+
+- Linux
+```bash
+LD_LIBRARY_PATH=. ./create_instance
+```
+
 <a name="requirements"></a>
 
 ## Requirements
 
-Coming soon...
+- C++14 or above compatible compiler.
 
 <a name="dependencies"></a>
 
 ## Dependencies
 
-Coming soon...
+- [Vulkan](https://vulkan.lunarg.com)
+- [Angelia](https://github.com/feserr/angelia)
+- [Hephaestus](https://github.com/feserr/hephaestus)
+- [Cap'n Proto](https://capnproto.org)
 
 <a name="future"></a>
 
 ## Future features
 
-Coming soon...
+- IP address are configured using a file.
 
 <a name="contributing"></a>
 
